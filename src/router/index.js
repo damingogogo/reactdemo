@@ -14,7 +14,7 @@ import { Suspense, lazy } from 'react'
 const Home = lazy(() => import('@/pages/Home'))
 const Article = lazy(() => import('@/pages/Article'))
 const Publish = lazy(() => import('@/pages/Publish'))
-const React = lazy(() => import('@/pages/React'))
+const React = lazy(() => import('@/pages/React/index1'))
 
 // 配置路由实例
 
@@ -39,7 +39,7 @@ const router = createBrowserRouter([
         path: 'react',
         element: <Suspense fallback={'加载中'}><React /></Suspense>
       },
-      
+
     ]
   },
   {
