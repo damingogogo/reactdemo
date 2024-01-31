@@ -25,6 +25,7 @@ const CheckboxGroup = Checkbox.Group;
 const plainOptions = ['吃饭', '睡觉', '看书'];
 const { confirm } = Modal;
 const { Option } = Select;
+dayjs.locale('zh-cn');
 
 const ReactCom = () => {
     const [checkedList, setCheckedList] = useState([]);
@@ -315,7 +316,10 @@ const ReactCom = () => {
     const showEditModal = (record) => {
         setIsEditModalVisible(true);
         setEditingRecord(record);
-        form.setFieldsValue(record);
+        // 将生日字段转换为dayjs对象
+        const birthday = record.birth ? dayjs(record.birth) : null;
+        // 设置表单字段的值
+        form.setFieldsValue({ ...record, birth: birthday });
         setCheckedList(record.aihao);
     };
 
@@ -350,7 +354,7 @@ const ReactCom = () => {
                         <Input.Password />
                     </Form.Item>
                     <Form.Item label="生日" name="birth">
-                        <DatePicker style={{ width: '100%' }} locale={locale} />
+                        <DatePicker style={{ width: '100%' }}/>
                     </Form.Item>
                     <Form.Item label="性别" name="sex">
                         <Input />
@@ -393,7 +397,7 @@ const ReactCom = () => {
                         <Input.Password />
                     </Form.Item>
                     <Form.Item label="生日" name="birth">
-                        <DatePicker style={{ width: '100%' }} defaultValue={dayjs()} locale={locale} />
+                        <DatePicker style={{ width: '100%' }} locale={{ lang: { locale: 'zh-cn' } }} />
                     </Form.Item>
                     <Form.Item label="性别" name="sex">
                         <Input />

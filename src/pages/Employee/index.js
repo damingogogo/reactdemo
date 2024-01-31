@@ -28,6 +28,9 @@ const ReactCom = () => {
     const [editingRecord, setEditingRecord] = useState(null);
     const [form] = Form.useForm();
     const [imageUrl, setImageUrl] = useState(null);
+    const [searchName, setSearchName] = useState('');
+    const [selectedIds, setSelectedIds] = useState([]);
+    const { confirm } = Modal;
 
     useEffect(() => {
         fetchData();
@@ -132,6 +135,41 @@ const ReactCom = () => {
             message.error(`${info.file.name} 文件上传失败.`);
         }
     };
+    const handleCheckboxChange = (id) => {
+        console.log(id)
+        setSelectedIds((prevSelectedIds) =>
+            prevSelectedIds.includes(id)
+                ? prevSelectedIds.filter((selectedId) => selectedId !== id)
+                : [...prevSelectedIds, id]
+
+        );
+
+    };
+
+    const handelDelBatch = () => {
+        confirm({
+            title: '确定要批量删除所选记录吗？',
+            icon: <ExclamationCircleOutlined />,
+            onOk() {
+                axios
+                    .delete(`http://127.0.0.1:8888/emp/deleteBatch/${selectedIds.join(',')}`)
+                    .then((response) => {
+                        console.log('批量删除成功:', response.data);
+                        setSelectedIds([]); // 清空勾选项
+                        fetchData();
+                        message.success('批量删除成功！');
+                    })
+                    .catch((error) => {
+                        console.error('批量删除失败:', error);
+                        message.error('批量删除失败！');
+                        setSelectedIds([]); // 清空勾选项
+                    });
+            },
+            onCancel() {
+                console.log('取消批量删除');
+            },
+        });
+    };
 
     const customRequest = async ({ file, onSuccess, onError }) => {
         try {
@@ -160,6 +198,15 @@ const ReactCom = () => {
     };
 
     const columns = [
+        {
+            title: '选择',
+            dataIndex: 'selection',
+            key: 'selection',
+            render: (_, record) => (
+                <Checkbox onChange={() => handleCheckboxChange(record.id)} />
+            ),
+            width: '5%',
+        },
         {
             title: '编号',
             dataIndex: 'id',
@@ -232,12 +279,35 @@ const ReactCom = () => {
         setEditingRecord(record);
         form.setFieldsValue(record);
     };
+    async function handleSearch(value) {
+        try {
+            const response = await axios.get('http://127.0.0.1:8888/emp/getByCon', {
+                params: { username: searchName || null },
+            });
+            console.log(response);
+            setData(response.data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
 
     return (
         <div>
+            <div style={{ marginBottom: 16 }}>
+                <Search
+                    placeholder="输入姓名进行搜索"
+                    onSearch={handleSearch}
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
+                    style={{ width: 200, marginRight: 10 }}
+                />
+            </div>
             <Space style={{ marginBottom: 16 }}>
                 <Button type="primary" onClick={showModal}>
                     添加员工
+                </Button>
+                <Button type="primary" onClick={handelDelBatch}>
+                    批量删除
                 </Button>
             </Space>
             <Table columns={columns} dataSource={data} />
