@@ -4,7 +4,7 @@ import { request } from "@/utils"
 
 export function loginAPI (formData) {
   return request({
-    url: '/authorizations',
+    url: '/authorizations1',
     method: 'POST',
     data: formData
   })
@@ -14,7 +14,8 @@ export function loginAPI (formData) {
 
 export function getProfileAPI () {
   return request({
-    url: '/user/profile',
+    // url: '/user/profile',
+    url: '/authorizations1/info',
     method: 'GET'
   })
 }

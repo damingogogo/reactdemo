@@ -19,19 +19,49 @@ const items = [
     key: '/',
     icon: <HomeOutlined />,
   },
+  // {
+  //   label: '文章管理',
+  //   key: '/article',
+  //   icon: <DiffOutlined />,
+  // },
+  // {
+  //   label: '创建文章',
+  //   key: '/publish',
+  //   icon: <EditOutlined />,
+  // },
   {
-    label: '文章管理',
-    key: '/article',
-    icon: <DiffOutlined />,
-  },
-  {
-    label: '创建文章',
-    key: '/publish',
+    label: 'react管理',
+    key: '/react',
     icon: <EditOutlined />,
   },
   {
-    label: 'React管理',
-    key: '/react',
+    label: '员工管理',
+    key: '/employee',
+    icon: <EditOutlined />,
+  },
+  {
+    label: '入职管理',
+    key: '/entry',
+    icon: <EditOutlined />,
+  },
+  {
+    label: '合同管理',
+    key: '/contract',
+    icon: <EditOutlined />,
+  },
+  {
+    label: '工资管理',
+    key: '/found',
+    icon: <EditOutlined />,
+  },
+  {
+    label: '打卡管理',
+    key: '/daka',
+    icon: <EditOutlined />,
+  },
+  {
+    label: '请假管理',
+    key: '/qinjia',
     icon: <EditOutlined />,
   },
 ]
@@ -69,7 +99,7 @@ const GeekLayout = () => {
       <Header className="header">
         <div className="logo" />
         <div className="user-info">
-          <span className="user-name">{name}</span>
+          <span className="user-name">欢迎您！{name}</span>
           <span className="user-logout">
             <Popconfirm title="是否确认退出？" okText="退出" cancelText="取消" onConfirm={onConfirm}>
               <LogoutOutlined /> 退出

@@ -10,12 +10,20 @@ import { AuthRoute } from '@/components/AuthRoute'
 // import Publish from '@/pages/Publish'
 import { Suspense, lazy } from 'react'
 
+
+
+
 // 1. lazy函数对组件进行导入
 const Home = lazy(() => import('@/pages/Home'))
 const Article = lazy(() => import('@/pages/Article'))
 const Publish = lazy(() => import('@/pages/Publish'))
-const React = lazy(() => import('@/pages/React/index1'))
-
+const React = lazy(() => import('@/pages/React/index'))
+const Employee = lazy(() => import('@/pages/Employee/index'))
+const Contract = lazy(() => import('@/pages/Contract/index'))
+const Found = lazy(() => import('@/pages/Found/index'))
+const Daka = lazy(() => import('@/pages/Daka/index'))
+const Qinjia = lazy(() => import('@/pages/Qinjia/index'))
+const Entry = lazy(() => import('@/pages/Entry/index'))
 // 配置路由实例
 
 const router = createBrowserRouter([
@@ -38,6 +46,30 @@ const router = createBrowserRouter([
       {
         path: 'react',
         element: <Suspense fallback={'加载中'}><React /></Suspense>
+      },
+      {
+        path: 'employee',
+        element: <Suspense fallback={'加载中'}><Employee /></Suspense>
+      },
+      {
+        path: 'entry',
+        element: <Suspense fallback={'加载中'}><Entry /></Suspense>
+      },
+      {
+        path: 'contract',
+        element: <Suspense fallback={'加载中'}><Contract /></Suspense>
+      },
+      {
+        path: 'found',
+        element: <Suspense fallback={'加载中'}><Found /></Suspense>
+      },
+      {
+        path: 'daka',
+        element: <Suspense fallback={'加载中'}><Daka /></Suspense>
+      },
+      {
+        path: 'qinjia',
+        element: <Suspense fallback={'加载中'}><Qinjia /></Suspense>
       },
 
     ]

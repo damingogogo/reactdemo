@@ -7,7 +7,8 @@ import router from "@/router"
 // 3. 请求拦截器 / 响应拦截器
 
 const request = axios.create({
-  baseURL: 'http://geek.itheima.net/v1_0',
+  // baseURL: 'http://geek.itheima.net/v1_0',
+  baseURL: 'http://127.0.0.1:8888/',
   timeout: 5000
 })
 
