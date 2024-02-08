@@ -40,8 +40,14 @@ const userReducer = userStore.reducer
 // 登录获取token异步方法封装
 const fetchLogin = (loginForm) => {
   return async (dispatch) => {
-    const res = await loginAPI(loginForm)
-    dispatch(setToken(res.data.token))
+    try {
+      const res = await loginAPI(loginForm)
+      dispatch(setToken(res.data.token))
+      return res // 返回响应对象以供后续处理
+    } catch (error) {
+      // 登录失败的处理逻辑
+      throw new Error('登录失败：用户名或密码不正确') // 抛出错误以供捕获
+    }
   }
 }
 

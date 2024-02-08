@@ -82,8 +82,10 @@ const ReactCom = () => {
             if (editingRecord) {
                 values.img = imageUrl;
                 const response = await axios.put(
-                    `http://127.0.0.1:8888/emp/update/${editingRecord.id}`,
-                    values
+                    `http://127.0.0.1:8888/emp/update/${editingRecord.id}`,{  ...values
+
+                    }
+
                 );
 
                 if (response.status === 200) {
@@ -220,17 +222,23 @@ const ReactCom = () => {
             width: '10%',
         },
         {
+            title: '工号',
+            dataIndex: 'gonghao',
+            key: 'gonghao',
+            width: '10%',
+        },
+        {
             title: '英文名',
             dataIndex: 'ename',
             key: 'ename',
             width: '10%',
         },
-        {
-            title: '密码',
-            dataIndex: 'password',
-            key: 'password',
-            width: '10%',
-        },
+        // {
+        //     title: '密码',
+        //     dataIndex: 'password',
+        //     key: 'password',
+        //     width: '10%',
+        // },
         {
             title: '性别',
             key: 'sex',
@@ -277,7 +285,8 @@ const ReactCom = () => {
     const showEditModal = (record) => {
         setIsEditModalVisible(true);
         setEditingRecord(record);
-        form.setFieldsValue(record);
+        form.setFieldsValue({ ...record,  imageUrl:record.img });
+
     };
     async function handleSearch(value) {
         try {
@@ -317,12 +326,15 @@ const ReactCom = () => {
                     <Form.Item label="姓名" name="name">
                         <Input />
                     </Form.Item>
+                    <Form.Item label="工号" name="gonghao">
+                        <Input />
+                    </Form.Item>
                     <Form.Item label="英文名" name="ename">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="密码" name="password">
-                        <Input.Password />
-                    </Form.Item>
+                    {/*<Form.Item label="密码" name="password">*/}
+                    {/*    <Input.Password />*/}
+                    {/*</Form.Item>*/}
                     <Form.Item label="性别" name="sex">
                         <Input />
                     </Form.Item>
@@ -363,12 +375,15 @@ const ReactCom = () => {
                     <Form.Item label="姓名" name="name">
                         <Input />
                     </Form.Item>
+                    <Form.Item label="工号" name="gonghao">
+                        <Input />
+                    </Form.Item>
                     <Form.Item label="英文名" name="ename">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="密码" name="password">
-                        <Input.Password />
-                    </Form.Item>
+                    {/*<Form.Item label="密码" name="password">*/}
+                    {/*    <Input.Password />*/}
+                    {/*</Form.Item>*/}
                     <Form.Item label="性别" name="sex">
                         <Input />
                     </Form.Item>
@@ -387,12 +402,20 @@ const ReactCom = () => {
                             onChange={handleImageChange}
                             customRequest={customRequest}
                         >
-                            {imageUrl ? (
-                                <img
-                                    src={imageUrl}
-                                    alt="avatar"
-                                    style={{ width: '50px', height: '50px' }}
-                                />
+                            {imageUrl || form.getFieldValue('img') ? (
+                                imageUrl ? (
+                                    <img
+                                        src={imageUrl}
+                                        alt="avatar"
+                                        style={{ width: '50px', height: '50px' }}
+                                    />
+                                ) : (
+                                    <img
+                                        src={form.getFieldValue('img')}
+                                        alt="avatar"
+                                        style={{ width: '50px', height: '50px' }}
+                                    />
+                                )
                             ) : (
                                 <div>
                                     <InboxOutlined style={{ fontSize: '36px', color: '#999' }} />

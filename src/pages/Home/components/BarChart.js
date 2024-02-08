@@ -21,7 +21,7 @@ const BarChart = ({ title }) => {
       },
       xAxis: {
         type: 'category',
-        data: ['Vue', 'React', 'Angular']
+        data: ['张三', '李四', '王五']
       },
       yAxis: {
         type: 'value'

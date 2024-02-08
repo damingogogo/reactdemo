@@ -11,7 +11,8 @@ import {
     Upload,
     DatePicker,
     Select,
-    Tag
+    Tag,
+    InputNumber
 } from 'antd';
 import axios from 'axios';
 import { InboxOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
@@ -50,12 +51,11 @@ const ReactCom = () => {
             console.log('Form values:', values);
 
             if (editingRecord) {
-                values.img = imageUrl;
                 const response = await axios.put(
                     `http://127.0.0.1:8888/found/update
 
 /${editingRecord.id}`,
-                    values
+                    values,
                 );
 
                 if (response.status === 200) {
@@ -68,8 +68,7 @@ const ReactCom = () => {
                 }
             } else {
                 const response = await axios.post('http://127.0.0.1:8888/found', {
-                    ...values,
-                    img: imageUrl
+                    ...values
                 });
 
                 if (response.status === 200) {
@@ -77,7 +76,7 @@ const ReactCom = () => {
                     form.resetFields();
                     fetchData();
                     message.success('添加成功');
-                    setImageUrl(null);
+
                 } else {
                     message.error('添加失败，服务器返回异常状态码');
                 }
@@ -171,9 +170,15 @@ const ReactCom = () => {
             width: '10%',
         },
         {
-            title: '员工编号',
-            dataIndex: 'employeeId',
-            key: 'employeeId',
+            title: '员工工号',
+            dataIndex: 'gonghao',
+            key: 'gonghao',
+            width: '10%',
+        },
+        {
+            title: '员工姓名',
+            dataIndex: 'empName',
+            key: 'empName',
             width: '10%',
         },
         {
@@ -234,6 +239,51 @@ const ReactCom = () => {
         setEditingRecord(record);
         form.setFieldsValue(record);
     };
+    const handleExport = async () => {
+        try {
+            // Prepare the data to be sent to the backend
+            const exportData = data.map(record => ({
+                id: record.id,
+                gonghao: record.gonghao,
+                empName: record.empName,
+                basicSalary: record.basicSalary,
+                bonus: record.bonus,
+                allowance: record.allowance,
+                pensionInsurance: record.pensionInsurance,
+                medicalInsurance: record.medicalInsurance,
+                unemploymentInsurance: record.unemploymentInsurance
+            }));
+
+            // Send the data to the backend API
+            const response = await axios.post('http://127.0.0.1:8888/found/export', exportData, {
+                responseType: 'blob', // Set response type to blob
+            });
+
+            // Create a blob object from the response data
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+            // Create a URL for the blob object
+            const url = window.URL.createObjectURL(blob);
+
+            // Create a link element
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'salary_information.xlsx'); // Set download attribute
+            document.body.appendChild(link);
+
+            // Click the link to trigger download
+            link.click();
+
+            // Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            message.success('导出工资信息成功');
+        } catch (error) {
+            console.error('Error exporting data:', error);
+            message.error('导出工资信息失败，发生错误');
+        }
+    };
 
     return (
         <div>
@@ -241,14 +291,19 @@ const ReactCom = () => {
                 <Button type="primary" onClick={showModal}>
                     添加工资信息
                 </Button>
+                <Button type="primary" onClick={handleExport}>
+                    导出工资信息
+                </Button>
             </Space>
             <Table columns={columns} dataSource={data} />
 
             <Modal title="添加工资信息" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="员工编号" name="employeeId">
+                    <Form.Item label="员工工号" name="gonghao">
                         <Input />
                     </Form.Item>
+
+
                     <Form.Item label="基本工资" name="basicSalary">
                         <Input />
                     </Form.Item>
@@ -272,7 +327,10 @@ const ReactCom = () => {
 
             <Modal title="修改工资信息" visible={isEditModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="员工编号" name="employeeId">
+                    <Form.Item label="员工工号" name="gonghao">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="员工姓名" name="empName">
                         <Input />
                     </Form.Item>
                     <Form.Item label="基本工资" name="basicSalary">

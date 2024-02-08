@@ -54,7 +54,7 @@ const ReactCom = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8888/react/get');
+            const response = await axios.get('http://127.0.0.1:8888/empContract');
             console.log(response);
             setData(response.data);
         } catch (error) {
@@ -79,7 +79,7 @@ const ReactCom = () => {
             icon: <ExclamationCircleOutlined />,
             onOk() {
                 axios
-                    .delete(`http://127.0.0.1:8888/react/deleteBatch/${selectedIds.join(',')}`)
+                    .delete(`http://127.0.0.1:8888/empContract/deleteBatch/${selectedIds.join(',')}`)
                     .then((response) => {
                         console.log('批量删除成功:', response.data);
                         fetchData();
@@ -104,7 +104,7 @@ const ReactCom = () => {
             if (editingRecord) {
                 values.img = imageUrl;
                 const response = await axios.put(
-                    `http://127.0.0.1:8888/react/update/${editingRecord.id}`,
+                    `http://127.0.0.1:8888/empContract/update/${editingRecord.id}`,
                     values
                 );
 
@@ -117,10 +117,8 @@ const ReactCom = () => {
                     message.error('修改失败，服务器返回异常状态码');
                 }
             } else {
-                const response = await axios.post('http://127.0.0.1:8888/react/save', {
-                    ...values,
-                    img: imageUrl,
-                    aihao:JSON.stringify(checkedList)
+                const response = await axios.post('http://127.0.0.1:8888/empContract', {
+                    ...values
                 });
 
                 if (response.status === 200) {
@@ -152,7 +150,7 @@ const ReactCom = () => {
 
     const handleDelete = async (recordId) => {
         try {
-            const response = await axios.delete(`http://127.0.0.1:8888/react/delete/${recordId}`);
+            const response = await axios.delete(`http://127.0.0.1:8888/empContract/delete/${recordId}`);
 
             if (response.status === 200) {
                 fetchData();
@@ -214,7 +212,7 @@ const ReactCom = () => {
 
     async function handleSearch(value) {
         try {
-            const response = await axios.get('http://127.0.0.1:8888/react/getByCon', {
+            const response = await axios.get('http://127.0.0.1:8888/empContract/getByCon', {
                 params: { username: searchName || null },
             });
             console.log(response);
@@ -238,62 +236,37 @@ const ReactCom = () => {
             title: '编号',
             dataIndex: 'id',
             key: 'id',
-            render: (text) => <a>{text}</a>,
             width: '10%',
         },
         {
-            title: '名称',
-            dataIndex: 'username',
-            key: 'username',
-            render: (text) => <a>{text}</a>,
+            title: '员工工号',
+            dataIndex: 'empId',
+            key: 'empId',
             width: '10%',
         },
         {
-            title: '密码',
-            dataIndex: 'password',
-            key: 'password',
-            width: '10%',
-        },
-        {
-            title: '生日',
-            dataIndex: 'birth',
-            key: 'birth',
+            title: '内容',
+            dataIndex: 'content',
+            key: 'content',
             width: '20%',
-            render: (text) => {
-                const date = new Date(text);
-                const year = date.getFullYear();
-                const month = date.getMonth() + 1;
-                const day = date.getDate();
-                return `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
-            },
         },
         {
-            title: '性别',
-            key: 'sex',
-            dataIndex: 'sex',
+            title: '类型',
+            dataIndex: 'type',
+            key: 'type',
             width: '10%',
         },
         {
-            title: '爱好',
-            key: 'aihao',
-            dataIndex: 'aihao',
-            render: (aihao) => (
-                <span>
-            {aihao && aihao.includes('吃饭') && <Tag color="blue">吃饭</Tag>}
-                    {aihao && aihao.includes('睡觉') && <Tag color="green">睡觉</Tag>}
-                    {aihao && aihao.includes('看书') && <Tag color="orange">看书</Tag>}
-        </span>
-            ),
+            title: '创建时间',
+            dataIndex: 'createTime',
+            key: 'createTime',
             width: '15%',
         },
-
         {
-            title: '头像',
-            dataIndex: 'img',
-            key: 'img',
-            render: (_, record) => (
-                <img src={record.img} alt="avatar" style={{ width: '50px', height: '50px' }} />
-            ),
+            title: '工号',
+            dataIndex: 'gonghao',
+            key: 'gonghao',
+            width: '10%',
         },
         {
             title: '操作',
@@ -323,7 +296,7 @@ const ReactCom = () => {
         <div>
             <div style={{ marginBottom: 16 }}>
                 <Search
-                    placeholder="输入用户名进行搜索"
+                    placeholder="输入员工姓名进行搜索"
                     onSearch={handleSearch}
                     value={searchName}
                     onChange={(e) => setSearchName(e.target.value)}
@@ -332,7 +305,7 @@ const ReactCom = () => {
             </div>
             <Space style={{ marginBottom: 16 }}>
                 <Button type="primary" onClick={showModal}>
-                    添加
+                    添加员工合同
                 </Button>
                 <Button type="primary" onClick={handelDelBatch}>
                     批量删除
@@ -342,98 +315,50 @@ const ReactCom = () => {
 
             <Modal title="添加" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="名称" name="username">
+                    <Form.Item label="编号" name="id">
                         <Input />
                     </Form.Item>
-
-                    <Form.Item label="密码" name="password">
-                        <Input.Password />
+                    <Form.Item label="员工工号" name="empId">
+                        <Input />
                     </Form.Item>
-                    <Form.Item label="生日" name="birth">
+                    <Form.Item label="内容" name="content">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="类型" name="type">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="创建时间" name="createTime">
                         <DatePicker style={{ width: '100%' }} locale={locale} />
                     </Form.Item>
-                    <Form.Item label="性别" name="sex">
+                    <Form.Item label="工号" name="gonghao">
                         <Input />
-                    </Form.Item>
-                    <Form.Item label="头像" name="img">
-                        <Upload
-                            name="img"
-                            listType="picture-card"
-                            showUploadList={false}
-                            beforeUpload={beforeUpload}
-                            onChange={handleImageChange}
-                            customRequest={customRequest}
-                        >
-                            {imageUrl ? (
-                                <img
-                                    src={imageUrl}
-                                    alt="avatar"
-                                    style={{ width: '50px', height: '50px' }}
-                                />
-                            ) : (
-                                <div>
-                                    <InboxOutlined style={{ fontSize: '36px', color: '#999' }} />
-                                    <div style={{ marginTop: 8 }}>点击上传</div>
-                                </div>
-                            )}
-                        </Upload>
-                    </Form.Item>
-                    <Form.Item label="爱好" name="aihao">
-                        <Checkbox.Group options={plainOptions} value={checkedList} onChange={handleChange} />
                     </Form.Item>
                 </Form>
             </Modal>
 
             <Modal title="修改" visible={isEditModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="名称" name="username">
+                    <Form.Item label="编号" name="id">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="密码" name="password">
-                        <Input.Password />
+                    <Form.Item label="员工工号" name="empId">
+                        <Input />
                     </Form.Item>
-                    <Form.Item label="生日" name="birth">
+                    <Form.Item label="内容" name="content">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="类型" name="type">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="创建时间" name="createTime">
                         <DatePicker style={{ width: '100%' }} defaultValue={dayjs()} locale={locale} />
                     </Form.Item>
-                    <Form.Item label="性别" name="sex">
+                    <Form.Item label="工号" name="gonghao">
                         <Input />
-                    </Form.Item>
-                    <Form.Item label="头像" name="img">
-                        <Upload
-                            name="img"
-                            listType="picture-card"
-                            showUploadList={false}
-                            beforeUpload={beforeUpload}
-                            onChange={handleImageChange}
-                            customRequest={customRequest}
-                        >
-                            {imageUrl || form.getFieldValue('img') ? (
-                                imageUrl ? (
-                                    <img
-                                        src={imageUrl}
-                                        alt="avatar"
-                                        style={{ width: '50px', height: '50px' }}
-                                    />
-                                ) : (
-                                    <img
-                                        src={form.getFieldValue('img')}
-                                        alt="avatar"
-                                        style={{ width: '50px', height: '50px' }}
-                                    />
-                                )
-                            ) : (
-                                <div>
-                                    <InboxOutlined style={{ fontSize: '36px', color: '#999' }} />
-                                    <div style={{ marginTop: 8 }}>点击上传</div>
-                                </div>
-                            )}
-                        </Upload>
-                    </Form.Item>
-                    <Form.Item label="爱好" name="aihao">
-                        <Checkbox.Group options={plainOptions} value={checkedList} onChange={handleChange} />
                     </Form.Item>
                 </Form>
             </Modal>
+
         </div>
     );
 };

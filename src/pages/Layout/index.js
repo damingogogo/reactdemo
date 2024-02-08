@@ -5,6 +5,10 @@ import {
     EditOutlined,
     UserAddOutlined,
     LogoutOutlined,
+  TableOutlined,
+  LoadingOutlined,
+  CalculatorOutlined,
+  FileSearchOutlined
 } from '@ant-design/icons'
 import './index.scss'
 import {Outlet, useLocation, useNavigate} from 'react-router-dom'
@@ -30,11 +34,11 @@ const items = [
     //   key: '/publish',
     //   icon: <EditOutlined />,
     // },
-    {
-        label: 'react管理',
-        key: '/react',
-        icon: <EditOutlined/>,
-    },
+    // {
+    //     label: 'react管理',
+    //     key: '/react',
+    //     icon: <EditOutlined/>,
+    // },
     {
         label: '员工管理',
         key: '/employee',
@@ -48,22 +52,27 @@ const items = [
     {
         label: '合同管理',
         key: '/contract',
-        icon: <EditOutlined/>,
+        icon: <FileSearchOutlined />,
     },
     {
         label: '工资管理',
         key: '/found',
-        icon: <EditOutlined/>,
+        icon: <CalculatorOutlined />,
     },
     {
         label: '打卡管理',
         key: '/daka',
-        icon: <EditOutlined/>,
+        icon: <TableOutlined />,
     },
     {
         label: '请假管理',
         key: '/qinjia',
-        icon: <EditOutlined/>,
+        icon: <LoadingOutlined />,
+    },
+    {
+        label: 'MUI管理',
+        key: '/mui',
+        icon: <LoadingOutlined />,
     },
 ]
 
@@ -109,16 +118,19 @@ const GeekLayout = () => {
                 </div>
             </Header>
             <Layout>
-                <Sider width={200} className="site-layout-background">
-                    <Menu
-                        mode="inline"
-                        theme="dark"
-                        selectedKeys={selectedkey}
-                        onClick={onMenuClick}
-                        items={items}
-                        style={{height: '100%', borderRight: 0}}></Menu>
-                </Sider>
-                <Layout className="layout-content" style={{padding: 20}}>
+              <Sider width={200} className="site-layout-background" theme="light">
+                <Menu
+                    mode="inline"
+                    selectedKeys={selectedkey}
+                    onClick={onMenuClick}
+                    items={items}
+                    style={{ height: '100%', borderRight: 0 }}
+                    theme="light"
+                ></Menu>
+              </Sider>
+
+
+              <Layout className="layout-content" style={{padding: 20}}>
                     {/* 二级路由的出口 */}
                     <Outlet/>
                 </Layout>

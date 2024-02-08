@@ -24,8 +24,8 @@ const Found = lazy(() => import('@/pages/Found/index'))
 const Daka = lazy(() => import('@/pages/Daka/index'))
 const Qinjia = lazy(() => import('@/pages/Qinjia/index'))
 const Entry = lazy(() => import('@/pages/Entry/index'))
+const Mui = lazy(() => import('@/pages/Mui/index'))
 // 配置路由实例
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -70,6 +70,10 @@ const router = createBrowserRouter([
       {
         path: 'qinjia',
         element: <Suspense fallback={'加载中'}><Qinjia /></Suspense>
+      },
+      {
+        path: 'mui',
+        element: <Suspense fallback={'加载中'}><Mui /></Suspense>
       },
 
     ]
