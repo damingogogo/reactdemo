@@ -2,7 +2,7 @@ import './index.scss'
 import { Card, Form, Input, Button, message } from 'antd'
 import logo from '@/assets/logo.png'
 import { useDispatch } from 'react-redux'
-import { fetchLogin } from '@/store/modules/user'
+import {fetchLogin, setLoginForm} from '@/store/modules/user'
 import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
@@ -11,6 +11,7 @@ const Login = () => {
   const onFinish = async (values) => {
     try {
       console.log(values)
+      dispatch(setLoginForm(values))
       // 触发异步action fetchLogin
       const response = await dispatch(fetchLogin(values))
       console.log(response)

@@ -240,8 +240,8 @@ const ReactCom = () => {
         },
         {
             title: '员工工号',
-            dataIndex: 'empId',
-            key: 'empId',
+            dataIndex: 'gonghao',
+            key: 'gonghao',
             width: '10%',
         },
         {
@@ -262,12 +262,7 @@ const ReactCom = () => {
             key: 'createTime',
             width: '15%',
         },
-        {
-            title: '工号',
-            dataIndex: 'gonghao',
-            key: 'gonghao',
-            width: '10%',
-        },
+
         {
             title: '操作',
             key: 'action',
@@ -288,7 +283,11 @@ const ReactCom = () => {
     const showEditModal = (record) => {
         setIsEditModalVisible(true);
         setEditingRecord(record);
-        form.setFieldsValue(record);
+        const createTime1 = record.createTime ? dayjs(record.createTime) : null;
+        // 设置表单字段的值
+        form.setFieldsValue({...record, createTime: createTime1});
+
+
         setCheckedList(record.aihao);
     };
 
@@ -315,10 +314,8 @@ const ReactCom = () => {
 
             <Modal title="添加" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="编号" name="id">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="员工工号" name="empId">
+
+                    <Form.Item label="员工工号" name="gonghao">
                         <Input />
                     </Form.Item>
                     <Form.Item label="内容" name="content">
@@ -330,18 +327,14 @@ const ReactCom = () => {
                     <Form.Item label="创建时间" name="createTime">
                         <DatePicker style={{ width: '100%' }} locale={locale} />
                     </Form.Item>
-                    <Form.Item label="工号" name="gonghao">
-                        <Input />
-                    </Form.Item>
+
                 </Form>
             </Modal>
 
             <Modal title="修改" visible={isEditModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="编号" name="id">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="员工工号" name="empId">
+
+                    <Form.Item label="员工工号" name="gonghao">
                         <Input />
                     </Form.Item>
                     <Form.Item label="内容" name="content">
@@ -353,9 +346,7 @@ const ReactCom = () => {
                     <Form.Item label="创建时间" name="createTime">
                         <DatePicker style={{ width: '100%' }} defaultValue={dayjs()} locale={locale} />
                     </Form.Item>
-                    <Form.Item label="工号" name="gonghao">
-                        <Input />
-                    </Form.Item>
+
                 </Form>
             </Modal>
 

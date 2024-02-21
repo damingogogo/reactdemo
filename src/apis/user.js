@@ -12,10 +12,11 @@ export function loginAPI (formData) {
 
 // 2. 获取用户信息
 
-export function getProfileAPI () {
+export function getProfileAPI (formData) {
   return request({
     // url: '/user/profile',
-    url: '/authorizations1/info',
-    method: 'GET'
+    url: '/authorizations1',
+    method: 'POST',
+    data:formData
   })
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     Space,
@@ -15,13 +15,13 @@ import {
     Checkbox
 } from 'antd';
 import axios from 'axios';
-import { InboxOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import {InboxOutlined, ExclamationCircleOutlined} from '@ant-design/icons';
 import dayjs from "dayjs";
 import Search from "antd/es/input/Search";
 import './index.css'
 
-const { Option } = Select;
-const { confirm } = Modal;
+const {Option} = Select;
+const {confirm} = Modal;
 
 const EmployeeEntryManagement = () => {
     const [data, setData] = useState([]);
@@ -38,15 +38,22 @@ const EmployeeEntryManagement = () => {
     const [selectedFencompany, setSelectedFencompany] = useState(null);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
-    const { RangePicker } = DatePicker;
+    const {RangePicker} = DatePicker;
     const [searchName, setSearchName] = useState('');
     const [selectedIds, setSelectedIds] = useState([]);
-
-
+    const [states, setStates] = useState(1); // 初始状态设为 1
 
 
 
     useEffect(() => {
+        // Fetch initial data when the component mounts
+        fetchData();
+        fetchcompanys();
+        fetchPositions();
+    }, []);
+
+    useEffect(() => {
+        //说明公司被选中
         if (selectedCompany !== null) {
             const fetchData = async () => {
                 try {
@@ -56,19 +63,17 @@ const EmployeeEntryManagement = () => {
                     console.error('Error fetching fencompanys:', error);
                 }
             };
-
             fetchData();
         }
     }, [selectedCompany]);
 
     useEffect(() => {
-        fetchData();
-        fetchcompanys();
+        // Fetch departments when a 分公司 is selected
+        if (selectedFencompany !== null) {
+            fetchDepartments();
+        }
+    }, [selectedFencompany]);
 
-        fetchDepartments();
-        fetchPositions();
-
-    }, []);
 
     const fetchData = async () => {
         try {
@@ -117,7 +122,7 @@ const EmployeeEntryManagement = () => {
             console.log('Form values:', values);
 
             if (editingRecord) {
-                values.img = imageUrl;
+
                 const response = await axios.put(
                     `http://127.0.0.1:8888/entry/update/${editingRecord.id}`,
                     values
@@ -160,8 +165,11 @@ const EmployeeEntryManagement = () => {
         setIsModalVisible(false);
         setIsEditModalVisible(false);
         setEditingRecord(null);
+        setSelectedCompany(null);
+        setSelectedFencompany(null);
         setImageUrl(null);
     };
+
 
     const beforeUpload = (file) => {
         return true;
@@ -173,14 +181,13 @@ const EmployeeEntryManagement = () => {
             prevSelectedIds.includes(id)
                 ? prevSelectedIds.filter((selectedId) => selectedId !== id)
                 : [...prevSelectedIds, id]
-
         );
 
     };
     const handelDelBatch = () => {
         confirm({
             title: '确定要批量删除所选记录吗？',
-            icon: <ExclamationCircleOutlined />,
+            icon: <ExclamationCircleOutlined/>,
             onOk() {
                 axios
                     .delete(`http://127.0.0.1:8888/entry/deleteBatch/${selectedIds.join(',')}`)
@@ -222,7 +229,7 @@ const EmployeeEntryManagement = () => {
         });
     };
 
-    const customRequest = async ({ file, onSuccess, onError }) => {
+    const customRequest = async ({file, onSuccess, onError}) => {
         try {
             const formData = new FormData();
             formData.append('img', file);
@@ -251,7 +258,7 @@ const EmployeeEntryManagement = () => {
             content: (
                 <div>
                     <p>请选择审批结果：</p>
-                    <Radio.Group onChange={(e) => handleApproval(e, record)}>
+                    <Radio.Group defaultValue={states} onChange={(e) => setStates(e.target.value)}>
                         <Radio value={1}>审批通过</Radio>
                         <Radio value={0}>审批不通过</Radio>
                     </Radio.Group>
@@ -259,14 +266,51 @@ const EmployeeEntryManagement = () => {
             ),
             okText: '确认',
             cancelText: '取消',
+            onOk: () => {
+                // 在 setStates 的回调函数中发送请求
+                setStates((prevState) => {
+                    console.log(prevState); // 打印之前的状态值
+                    const params = new URLSearchParams();
+                    params.append('id', record.id);
+                    params.append('states', prevState); // 使用之前的状态值
+
+                    // 发送 POST 请求到后端审批接口
+                    fetch(`http://127.0.0.1:8888/entry/shenpi?${params.toString()}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // 处理请求成功的逻辑，根据后端返回的数据进行处理
+                            console.log(data);
+                            fetchData();
+                        })
+                        .catch(error => {
+                            // 处理请求失败的逻辑
+                            console.error('There was a problem with the fetch operation:', error);
+                        });
+
+                    // 返回最新的状态值
+                    return prevState;
+                });
+            },
         });
     };
+
+
     const handleApproval = async (e, record) => {
         const approvalResult = e.target.value;
         try {
             // Perform approval action based on the approvalResult (1 for approval, 0 for rejection)
             // Example: Send request to server to update approval status
-            await axios.put(`YOUR_API_ENDPOINT/${record.id}`, { approvalResult });
+            await axios.put(`YOUR_API_ENDPOINT/${record.id}`, {approvalResult});
             message.success('审批成功');
             fetchData(); // Refresh data after approval
         } catch (error) {
@@ -282,7 +326,7 @@ const EmployeeEntryManagement = () => {
             dataIndex: 'selection',
             key: 'selection',
             render: (_, record) => (
-                <Checkbox onChange={() => handleCheckboxChange(record.id)} />
+                <Checkbox onChange={() => handleCheckboxChange(record.id)}/>
             ),
             width: '5%',
         },
@@ -301,7 +345,7 @@ const EmployeeEntryManagement = () => {
         {
             title: '公司id',
             dataIndex: 'companyId',
-            className:"notshow",
+            className: "notshow",
             key: 'companyId',
             width: '10%',
             render: () => null, // 将该列的render函数设置为返回null
@@ -310,7 +354,7 @@ const EmployeeEntryManagement = () => {
         {
             title: '分公司id',
             dataIndex: 'fencompanyId',
-            className:"notshow",
+            className: "notshow",
             key: 'fencompanyId',
             width: '10%',
         },
@@ -392,20 +436,24 @@ const EmployeeEntryManagement = () => {
 
     ];
 
+//添加对话框
     const showModal = () => {
         setIsModalVisible(true);
     };
-
+//修改对话框
     const showEditModal = (record) => {
-
         console.log(record)
-        console.log("==============")
+        console.log(record.companyId)
+        setSelectedCompany(record.companyId)
+        console.log(selectedCompany)
+        fetchfencompanys(record.companyId)
+        console.log(fencompanys)
+        console.log("=====edit=========")
         setIsEditModalVisible(true);
         setEditingRecord(record);
-
         const entryTime1 = record.entryTime ? dayjs(record.entryTime) : null;
         // 设置表单字段的值
-        form.setFieldsValue({ ...record, entryTime: entryTime1 });
+        form.setFieldsValue({...record, entryTime: entryTime1});
 
     };
 
@@ -427,9 +475,12 @@ const EmployeeEntryManagement = () => {
             return null;
         }
     };
-    const fetchDepartments = async () => {
+    const fetchDepartments = async (value) => {
         try {
-            const response = await axios.get(`http://127.0.0.1:8888/empDept/fencompany?id=${selectedFencompany}`);
+            console.log('fetchDepartments')
+            const response = await axios.get(`http://127.0.0.1:8888/empDept/fencompany?id=${value ?? selectedFencompany}`);
+            console.log('selectedFencompany:', selectedFencompany)
+            console.log('response.data:', response.data)
             setDepartments(response.data);
         } catch (error) {
             console.error('Error fetching departments:', error);
@@ -451,16 +502,16 @@ const EmployeeEntryManagement = () => {
 
     return (
         <div>
-            <Space style={{ marginBottom: 16 }}>
+            <Space style={{marginBottom: 16}}>
                 <Search
                     placeholder="输入姓名进行搜索"
                     onSearch={handleSearch}
                     value={searchName}
                     onChange={(e) => setSearchName(e.target.value)}
-                    style={{ width: 200, marginRight: 10 }}
+                    style={{width: 200, marginRight: 10}}
                 />
                 <RangePicker
-                    style={{ marginRight: 8 }}
+                    style={{marginRight: 8}}
                     value={[startDate, endDate]}
                     onChange={(dates) => {
                         if (dates && dates.length > 0) {
@@ -482,15 +533,15 @@ const EmployeeEntryManagement = () => {
                     批量删除
                 </Button>
             </Space>
-            <Table columns={columns} dataSource={data} />
+            <Table columns={columns} dataSource={data}/>
 
             <Modal title="添加入职" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
                     <Form.Item label="员工工号" name="empId">
-                        <Input />
+                        <Input/>
                     </Form.Item>
                     <Form.Item label="员工姓名" name="empName">
-                        <Input />
+                        <Input/>
                     </Form.Item>
                     <Form.Item label="状态" name="states" initialValue={0}>
                         <Radio.Group defaultValue={0}>
@@ -499,17 +550,9 @@ const EmployeeEntryManagement = () => {
                         </Radio.Group>
                     </Form.Item>
                     <Form.Item label="入职时间" name="entryTime">
-                        <DatePicker placeholder="请选择入职时间" />
+                        <DatePicker placeholder="请选择入职时间"/>
                     </Form.Item>
-                    {/*<Form.Item label="审批人" name="approver">*/}
-                    {/*    <Input />*/}
-                    {/*</Form.Item>*/}
-                    {/*<Form.Item label="部门名称" name="deptId">*/}
-                    {/*    <Input />*/}
-                    {/*</Form.Item>*/}
-                    {/*<Form.Item label="岗位名称" name="postId">*/}
-                    {/*    <Input />*/}
-                    {/*</Form.Item>*/}
+
 
                     <Form.Item label="公司" name="companyId">
                         <Select onChange={setSelectedCompany} value={selectedCompany}>
@@ -521,7 +564,10 @@ const EmployeeEntryManagement = () => {
                         </Select>
                     </Form.Item>
                     <Form.Item label="分公司" name="fencompanyId">
-                        <Select onChange={(value) => { setSelectedFencompany(value); fetchDepartments(value); }} value={selectedFencompany}>
+                        <Select onChange={(value) => {
+                            setSelectedFencompany(value);
+                            fetchDepartments(value)
+                        }} value={selectedFencompany}>
                             {fencompanys.map((fencompany) => (
                                 <Option key={fencompany.deptId} value={fencompany.deptId}>
                                     {fencompany.deptName}
@@ -553,23 +599,16 @@ const EmployeeEntryManagement = () => {
             <Modal title="修改入职" visible={isEditModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
                     <Form.Item label="员工工号" name="empId">
-                        <Input />
+                        <Input/>
                     </Form.Item>
                     <Form.Item label="员工姓名" name="empName">
-                        <Input />
+                        <Input/>
                     </Form.Item>
-                    <Form.Item label="状态" name="states" initialValue={0}>
-                        <Radio.Group defaultValue={0}>
-                            <Radio value={0}>发起请求</Radio>
-                            <Radio value={1}>审批通过</Radio>
-                        </Radio.Group>
-                    </Form.Item>
+
                     <Form.Item label="入职时间" name="entryTime">
-                        <DatePicker placeholder="请选择入职时间" />
+                        <DatePicker placeholder="请选择入职时间"/>
                     </Form.Item>
-                    {/*<Form.Item label="审批人" name="approver">*/}
-                    {/*    <Input />*/}
-                    {/*</Form.Item>*/}
+
 
                     <Form.Item label="公司" name="companyId">
                         <Select onChange={setSelectedCompany} value={selectedCompany}>
@@ -581,7 +620,10 @@ const EmployeeEntryManagement = () => {
                         </Select>
                     </Form.Item>
                     <Form.Item label="分公司" name="fencompanyId">
-                        <Select onChange={(value) => { setSelectedFencompany(value); fetchDepartments(value); }} value={selectedFencompany}>
+                        <Select onChange={(value) => {
+                            setSelectedFencompany(value);
+                            fetchDepartments(value);
+                        }} value={selectedFencompany} defaultValue={selectedFencompany}>
                             {fencompanys.map((fencompany) => (
                                 <Option key={fencompany.deptId} value={fencompany.deptId}>
                                     {fencompany.deptName}
@@ -590,7 +632,7 @@ const EmployeeEntryManagement = () => {
                         </Select>
                     </Form.Item>
                     <Form.Item label="部门" name="deptId">
-                        <Select>
+                        <Select defaultValue={departments[0]}>
                             {departments.map((department) => (
                                 <Option key={department.deptId} value={department.deptId}>
                                     {department.deptName}
@@ -598,6 +640,8 @@ const EmployeeEntryManagement = () => {
                             ))}
                         </Select>
                     </Form.Item>
+
+
                     <Form.Item label="岗位" name="postId">
                         <Select>
                             {positions.map((position) => (

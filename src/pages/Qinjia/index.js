@@ -180,9 +180,9 @@ const ReactCom = () => {
             width: '10%',
         },
         {
-            title: '员工编号',
-            dataIndex: 'employeeId',
-            key: 'employeeId',
+            title: '员工工号',
+            dataIndex: 'gonghao',
+            key: 'gonghao',
             width: '10%',
         },
         {
@@ -221,12 +221,7 @@ const ReactCom = () => {
             key: 'approver',
             width: '10%',
         },
-        {
-            title: '工号',
-            dataIndex: 'gonghao',
-            key: 'gonghao',
-            width: '10%',
-        },
+
         {
             title: '操作',
             key: 'action',
@@ -270,10 +265,8 @@ const ReactCom = () => {
 
             <Modal title="添加" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="编号" name="id">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="员工编号" name="employeeId">
+
+                    <Form.Item label="员工工号" name="gonghao">
                         <Input />
                     </Form.Item>
                     <Form.Item label="开始时间" name="startTime">
@@ -294,18 +287,14 @@ const ReactCom = () => {
                     <Form.Item label="审批人" name="approver">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="工号" name="gonghao">
-                        <Input />
-                    </Form.Item>
+
                 </Form>
             </Modal>
 
             <Modal title="修改" visible={isEditModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="编号" name="id">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="员工编号" name="employeeId">
+
+                    <Form.Item label="员工工号" name="gonghao">
                         <Input />
                     </Form.Item>
                     <Form.Item label="开始时间" name="startTime">
@@ -326,9 +315,7 @@ const ReactCom = () => {
                     <Form.Item label="审批人" name="approver">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="工号" name="gonghao">
-                        <Input />
-                    </Form.Item>
+
                 </Form>
             </Modal>
         </div>

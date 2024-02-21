@@ -14,7 +14,7 @@ import './index.scss'
 import {Outlet, useLocation, useNavigate} from 'react-router-dom'
 import {useEffect} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
-import {fetchUserInfo, clearUserInfo} from '@/store/modules/user'
+import {fetchUserInfo, clearUserInfo,setLoginForm} from '@/store/modules/user'
 
 const {Header, Sider} = Layout
 
@@ -69,15 +69,16 @@ const items = [
         key: '/qinjia',
         icon: <LoadingOutlined />,
     },
-    {
-        label: 'MUI管理',
-        key: '/mui',
-        icon: <LoadingOutlined />,
-    },
+    // {
+    //     label: 'MUI管理',
+    //     key: '/mui',
+    //     icon: <LoadingOutlined />,
+    // },
 ]
 
 const GeekLayout = () => {
     const navigate = useNavigate()
+    const formData = useSelector(state => state.user.loginForm)
     const onMenuClick = (route) => {
         console.log('菜单被点击了', route)
         const path = route.key
@@ -93,8 +94,8 @@ const GeekLayout = () => {
     // 触发个人用户信息action
     const dispatch = useDispatch()
     useEffect(() => {
-        dispatch(fetchUserInfo())
-    }, [dispatch])
+        dispatch(fetchUserInfo(formData))
+    }, [dispatch,formData])
 
     // 退出登录确认回调
     const onConfirm = () => {

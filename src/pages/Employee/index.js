@@ -11,7 +11,8 @@ import {
     Upload,
     DatePicker,
     Select,
-    Tag
+    Tag,
+    Radio
 } from 'antd';
 import axios from 'axios';
 import { InboxOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
@@ -31,6 +32,11 @@ const ReactCom = () => {
     const [searchName, setSearchName] = useState('');
     const [selectedIds, setSelectedIds] = useState([]);
     const { confirm } = Modal;
+    const [sex, setSex] = useState('男');
+
+    const handleSexChange = (e) => {
+        setSex(e.target.value);
+    };
 
     useEffect(() => {
         fetchData();
@@ -143,11 +149,8 @@ const ReactCom = () => {
             prevSelectedIds.includes(id)
                 ? prevSelectedIds.filter((selectedId) => selectedId !== id)
                 : [...prevSelectedIds, id]
-
         );
-
     };
-
     const handelDelBatch = () => {
         confirm({
             title: '确定要批量删除所选记录吗？',
@@ -233,17 +236,17 @@ const ReactCom = () => {
             key: 'ename',
             width: '10%',
         },
-        // {
-        //     title: '密码',
-        //     dataIndex: 'password',
-        //     key: 'password',
-        //     width: '10%',
-        // },
+
         {
             title: '性别',
             key: 'sex',
             dataIndex: 'sex',
             width: '10%',
+            render: (sex) => (
+                <Tag color={sex === '男' ? 'blue' : 'magenta'}>
+                    {sex}
+                </Tag>
+            ),
         },
         {
             title: '地址',
@@ -300,6 +303,25 @@ const ReactCom = () => {
         }
     }
 
+    //姓名校验
+    const validateName = (_, value) => {
+        if (!value) {
+            return Promise.reject('请输入姓名');
+        }
+        if (!/^[\u4E00-\u9FA5]{2,4}$/.test(value)) {
+            return Promise.reject('姓名必须是2到4个汉字');
+        }
+        return Promise.resolve();
+    };
+    //电话校验
+    const validatePhoneNumber = (_, value) => {
+        const phoneNumberRegex = /^[1][3-9]\d{9}$/; // 手机号正则表达式
+        if (value && !phoneNumberRegex.test(value)) {
+            return Promise.reject('请输入有效的手机号码');
+        }
+        return Promise.resolve();
+    };
+
     return (
         <div>
             <div style={{ marginBottom: 16 }}>
@@ -323,7 +345,7 @@ const ReactCom = () => {
 
             <Modal title="添加员工" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="姓名" name="name">
+                    <Form.Item label="姓名" name="name" rules={[{ validator: validateName }]}>
                         <Input />
                     </Form.Item>
                     <Form.Item label="工号" name="gonghao">
@@ -335,13 +357,16 @@ const ReactCom = () => {
                     {/*<Form.Item label="密码" name="password">*/}
                     {/*    <Input.Password />*/}
                     {/*</Form.Item>*/}
-                    <Form.Item label="性别" name="sex">
-                        <Input />
+                    <Form.Item label="性别" name="sex" initialValue="男">
+                        <Radio.Group onChange={handleSexChange}>
+                            <Radio value="男">男</Radio>
+                            <Radio value="女">女</Radio>
+                        </Radio.Group>
                     </Form.Item>
                     <Form.Item label="地址" name="address">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="联系电话" name="number">
+                    <Form.Item label="联系电话" name="number" rules={[{ validator: validatePhoneNumber }]}>
                         <Input />
                     </Form.Item>
                     <Form.Item label="头像" name="img">
@@ -372,7 +397,7 @@ const ReactCom = () => {
 
             <Modal title="修改员工信息" visible={isEditModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="姓名" name="name">
+                    <Form.Item label="姓名" name="name" rules={[{ validator: validateName }]}>
                         <Input />
                     </Form.Item>
                     <Form.Item label="工号" name="gonghao">
@@ -381,18 +406,20 @@ const ReactCom = () => {
                     <Form.Item label="英文名" name="ename">
                         <Input />
                     </Form.Item>
-                    {/*<Form.Item label="密码" name="password">*/}
-                    {/*    <Input.Password />*/}
-                    {/*</Form.Item>*/}
-                    <Form.Item label="性别" name="sex">
-                        <Input />
+
+                    <Form.Item label="性别" name="sex" initialValue="男">
+                        <Radio.Group onChange={handleSexChange}>
+                            <Radio value="男">男</Radio>
+                            <Radio value="女">女</Radio>
+                        </Radio.Group>
                     </Form.Item>
                     <Form.Item label="地址" name="address">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="联系电话" name="number">
+                    <Form.Item label="联系电话" name="number" rules={[{ validator: validatePhoneNumber }]}>
                         <Input />
                     </Form.Item>
+
                     <Form.Item label="头像" name="img">
                         <Upload
                             name="img"
