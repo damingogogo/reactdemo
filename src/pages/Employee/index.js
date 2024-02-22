@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
+import {BASEURL} from "@/index";
 import {
     Button,
     Space,
@@ -15,11 +16,12 @@ import {
     Radio
 } from 'antd';
 import axios from 'axios';
-import { InboxOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import {InboxOutlined, ExclamationCircleOutlined} from '@ant-design/icons';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import Search from 'antd/es/input/Search';
+
 const CheckboxGroup = Checkbox.Group;
 
 const ReactCom = () => {
@@ -31,7 +33,7 @@ const ReactCom = () => {
     const [imageUrl, setImageUrl] = useState(null);
     const [searchName, setSearchName] = useState('');
     const [selectedIds, setSelectedIds] = useState([]);
-    const { confirm } = Modal;
+    const {confirm} = Modal;
     const [sex, setSex] = useState('男');
 
     const handleSexChange = (e) => {
@@ -44,7 +46,7 @@ const ReactCom = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8888/emp'
+            const response = await axios.get(`${BASEURL}/emp`
             );
             console.log(response);
             setData(response.data);
@@ -65,7 +67,7 @@ const ReactCom = () => {
     };
     const handleDelete = async (recordId) => {
         try {
-            const response = await axios.delete(`http://127.0.0.1:8888/emp/delete/${recordId}`);
+            const response = await axios.delete(`${BASEURL}/emp/delete/${recordId}`);
 
             if (response.status === 200) {
                 fetchData();
@@ -88,10 +90,10 @@ const ReactCom = () => {
             if (editingRecord) {
                 values.img = imageUrl;
                 const response = await axios.put(
-                    `http://127.0.0.1:8888/emp/update/${editingRecord.id}`,{  ...values
+                    `${BASEURL}/emp/update/${editingRecord.id}`, {
+                        ...values
 
                     }
-
                 );
 
                 if (response.status === 200) {
@@ -103,7 +105,7 @@ const ReactCom = () => {
                     message.error('修改失败，服务器返回异常状态码');
                 }
             } else {
-                const response = await axios.post('http://127.0.0.1:8888/emp', {
+                const response = await axios.post(`${BASEURL}/emp`, {
                     ...values,
                     img: imageUrl
                 });
@@ -154,10 +156,10 @@ const ReactCom = () => {
     const handelDelBatch = () => {
         confirm({
             title: '确定要批量删除所选记录吗？',
-            icon: <ExclamationCircleOutlined />,
+            icon: <ExclamationCircleOutlined/>,
             onOk() {
                 axios
-                    .delete(`http://127.0.0.1:8888/emp/deleteBatch/${selectedIds.join(',')}`)
+                    .delete(`${BASEURL}/emp/deleteBatch/${selectedIds.join(',')}`)
                     .then((response) => {
                         console.log('批量删除成功:', response.data);
                         setSelectedIds([]); // 清空勾选项
@@ -176,12 +178,12 @@ const ReactCom = () => {
         });
     };
 
-    const customRequest = async ({ file, onSuccess, onError }) => {
+    const customRequest = async ({file, onSuccess, onError}) => {
         try {
             const formData = new FormData();
             formData.append('img', file);
 
-            const response = await axios.post('http://127.0.0.1:8888/files/upload', formData, {
+            const response = await axios.post(`${BASEURL}/files/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -208,7 +210,7 @@ const ReactCom = () => {
             dataIndex: 'selection',
             key: 'selection',
             render: (_, record) => (
-                <Checkbox onChange={() => handleCheckboxChange(record.id)} />
+                <Checkbox onChange={() => handleCheckboxChange(record.id)}/>
             ),
             width: '5%',
         },
@@ -265,7 +267,7 @@ const ReactCom = () => {
             dataIndex: 'img',
             key: 'img',
             render: (_, record) => (
-                <img src={record.img} alt="avatar" style={{ width: '50px', height: '50px' }} />
+                <img src={record.img} alt="avatar" style={{width: '50px', height: '50px'}}/>
             ),
         },
         {
@@ -288,13 +290,14 @@ const ReactCom = () => {
     const showEditModal = (record) => {
         setIsEditModalVisible(true);
         setEditingRecord(record);
-        form.setFieldsValue({ ...record,  imageUrl:record.img });
+        form.setFieldsValue({...record, imageUrl: record.img});
 
     };
+
     async function handleSearch(value) {
         try {
-            const response = await axios.get('http://127.0.0.1:8888/emp/getByCon', {
-                params: { username: searchName || null },
+            const response = await axios.get(`${BASEURL}/emp/getByCon`, {
+                params: {username: searchName || null},
             });
             console.log(response);
             setData(response.data);
@@ -324,16 +327,16 @@ const ReactCom = () => {
 
     return (
         <div>
-            <div style={{ marginBottom: 16 }}>
+            <div style={{marginBottom: 16}}>
                 <Search
                     placeholder="输入姓名进行搜索"
                     onSearch={handleSearch}
                     value={searchName}
                     onChange={(e) => setSearchName(e.target.value)}
-                    style={{ width: 200, marginRight: 10 }}
+                    style={{width: 200, marginRight: 10}}
                 />
             </div>
-            <Space style={{ marginBottom: 16 }}>
+            <Space style={{marginBottom: 16}}>
                 <Button type="primary" onClick={showModal}>
                     添加员工
                 </Button>
@@ -341,18 +344,18 @@ const ReactCom = () => {
                     批量删除
                 </Button>
             </Space>
-            <Table columns={columns} dataSource={data} />
+            <Table columns={columns} dataSource={data}/>
 
             <Modal title="添加员工" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="姓名" name="name" rules={[{ validator: validateName }]}>
-                        <Input />
+                    <Form.Item label="姓名" name="name" rules={[{validator: validateName}]}>
+                        <Input/>
                     </Form.Item>
                     <Form.Item label="工号" name="gonghao">
-                        <Input />
+                        <Input/>
                     </Form.Item>
                     <Form.Item label="英文名" name="ename">
-                        <Input />
+                        <Input/>
                     </Form.Item>
                     {/*<Form.Item label="密码" name="password">*/}
                     {/*    <Input.Password />*/}
@@ -364,10 +367,10 @@ const ReactCom = () => {
                         </Radio.Group>
                     </Form.Item>
                     <Form.Item label="地址" name="address">
-                        <Input />
+                        <Input/>
                     </Form.Item>
-                    <Form.Item label="联系电话" name="number" rules={[{ validator: validatePhoneNumber }]}>
-                        <Input />
+                    <Form.Item label="联系电话" name="number" rules={[{validator: validatePhoneNumber}]}>
+                        <Input/>
                     </Form.Item>
                     <Form.Item label="头像" name="img">
                         <Upload
@@ -382,12 +385,12 @@ const ReactCom = () => {
                                 <img
                                     src={imageUrl}
                                     alt="avatar"
-                                    style={{ width: '50px', height: '50px' }}
+                                    style={{width: '100px', height: '100px'}}
                                 />
                             ) : (
                                 <div>
-                                    <InboxOutlined style={{ fontSize: '36px', color: '#999' }} />
-                                    <div style={{ marginTop: 8 }}>点击上传</div>
+                                    <InboxOutlined style={{fontSize: '36px', color: '#999'}}/>
+                                    <div style={{marginTop: 8}}>点击上传</div>
                                 </div>
                             )}
                         </Upload>
@@ -397,14 +400,14 @@ const ReactCom = () => {
 
             <Modal title="修改员工信息" visible={isEditModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form form={form}>
-                    <Form.Item label="姓名" name="name" rules={[{ validator: validateName }]}>
-                        <Input />
+                    <Form.Item label="姓名" name="name" rules={[{validator: validateName}]}>
+                        <Input/>
                     </Form.Item>
                     <Form.Item label="工号" name="gonghao">
-                        <Input />
+                        <Input/>
                     </Form.Item>
                     <Form.Item label="英文名" name="ename">
-                        <Input />
+                        <Input/>
                     </Form.Item>
 
                     <Form.Item label="性别" name="sex" initialValue="男">
@@ -414,10 +417,10 @@ const ReactCom = () => {
                         </Radio.Group>
                     </Form.Item>
                     <Form.Item label="地址" name="address">
-                        <Input />
+                        <Input/>
                     </Form.Item>
-                    <Form.Item label="联系电话" name="number" rules={[{ validator: validatePhoneNumber }]}>
-                        <Input />
+                    <Form.Item label="联系电话" name="number" rules={[{validator: validatePhoneNumber}]}>
+                        <Input/>
                     </Form.Item>
 
                     <Form.Item label="头像" name="img">
@@ -434,19 +437,19 @@ const ReactCom = () => {
                                     <img
                                         src={imageUrl}
                                         alt="avatar"
-                                        style={{ width: '50px', height: '50px' }}
+                                        style={{width: '50px', height: '50px'}}
                                     />
                                 ) : (
                                     <img
                                         src={form.getFieldValue('img')}
                                         alt="avatar"
-                                        style={{ width: '50px', height: '50px' }}
+                                        style={{width: '50px', height: '50px'}}
                                     />
                                 )
                             ) : (
                                 <div>
-                                    <InboxOutlined style={{ fontSize: '36px', color: '#999' }} />
-                                    <div style={{ marginTop: 8 }}>点击上传</div>
+                                    <InboxOutlined style={{fontSize: '36px', color: '#999'}}/>
+                                    <div style={{marginTop: 8}}>点击上传</div>
                                 </div>
                             )}
                         </Upload>

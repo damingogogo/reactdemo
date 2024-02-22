@@ -97,20 +97,21 @@ const GeekLayout = () => {
         dispatch(fetchUserInfo(formData))
     }, [dispatch,formData])
 
+
     // 退出登录确认回调
     const onConfirm = () => {
         console.log('确认退出')
         dispatch(clearUserInfo())
         navigate('/login')
     }
-
+    // JSON.parse(localStorage.getItem("user")).name
     const name = useSelector(state => state.user.userInfo.name)
     return (
         <Layout>
             <Header className="header">
                 <div className="logo"/>
                 <div className="user-info">
-                    <span className="user-name">欢迎您！{name}</span>
+                    <span className="user-name">欢迎您！{JSON.parse(localStorage.getItem("user")).name}</span>
                     <span className="user-logout">
             <Popconfirm title="是否确认退出？" okText="退出" cancelText="取消" onConfirm={onConfirm}>
               <LogoutOutlined/> 退出

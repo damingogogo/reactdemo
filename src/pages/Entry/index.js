@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import swal from "sweetalert";
 import {
     Button,
     Space,
@@ -42,7 +43,6 @@ const EmployeeEntryManagement = () => {
     const [searchName, setSearchName] = useState('');
     const [selectedIds, setSelectedIds] = useState([]);
     const [states, setStates] = useState(1); // 初始状态设为 1
-
 
 
     useEffect(() => {
@@ -252,6 +252,8 @@ const EmployeeEntryManagement = () => {
             message.error('上传失败，请重试！');
         }
     };
+
+
     const showApprovalModal = (record) => {
         Modal.confirm({
             title: '审批',
@@ -291,6 +293,13 @@ const EmployeeEntryManagement = () => {
                             // 处理请求成功的逻辑，根据后端返回的数据进行处理
                             console.log(data);
                             fetchData();
+
+                            // 根据审批结果显示不同的提示框
+                            if (prevState === 1) {
+                                swal('审批通过', '', 'success');
+                            } else {
+                                swal('审批不通过', '', 'error');
+                            }
                         })
                         .catch(error => {
                             // 处理请求失败的逻辑
@@ -305,19 +314,6 @@ const EmployeeEntryManagement = () => {
     };
 
 
-    const handleApproval = async (e, record) => {
-        const approvalResult = e.target.value;
-        try {
-            // Perform approval action based on the approvalResult (1 for approval, 0 for rejection)
-            // Example: Send request to server to update approval status
-            await axios.put(`YOUR_API_ENDPOINT/${record.id}`, {approvalResult});
-            message.success('审批成功');
-            fetchData(); // Refresh data after approval
-        } catch (error) {
-            console.error('Error approving entry:', error);
-            message.error('审批失败，请重试');
-        }
-    };
 
 
     const columns = [
@@ -442,19 +438,31 @@ const EmployeeEntryManagement = () => {
     };
 //修改对话框
     const showEditModal = (record) => {
-        console.log(record)
-        console.log(record.companyId)
-        setSelectedCompany(record.companyId)
-        console.log(selectedCompany)
-        fetchfencompanys(record.companyId)
-        console.log(fencompanys)
-        console.log("=====edit=========")
-        setIsEditModalVisible(true);
-        setEditingRecord(record);
-        const entryTime1 = record.entryTime ? dayjs(record.entryTime) : null;
-        // 设置表单字段的值
-        form.setFieldsValue({...record, entryTime: entryTime1});
+        console.log(record.companyId);
+        fetchFenCompany(record.companyId)
+            .then(fencompanys => {
+                console.log(fencompanys);
+                setFencompanys(fencompanys);
+                console.log("=====edit=========");
+                setIsEditModalVisible(true);
+                setEditingRecord(record);
+                const entryTime1 = record.entryTime ? dayjs(record.entryTime) : null;
+                // 设置表单字段的值
+                form.setFieldsValue({...record, entryTime: entryTime1});
 
+                // 获取选中分公司的deptId
+                console.log(record.fencompanyId);
+                fetchSyncDepartments(record.fencompanyId)
+                    .then(departments => {
+                        setDepartments(departments);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching departments:', error);
+                    });
+            })
+            .catch(error => {
+                console.error('Error fetching fencompanys:', error);
+            });
     };
 
     const fetchcompanys = async () => {
@@ -475,6 +483,15 @@ const EmployeeEntryManagement = () => {
             return null;
         }
     };
+    //同步
+    function fetchFenCompany(selectedCompany) {
+        return axios.get(`http://127.0.0.1:8888/empDept/fencompany?id=${selectedCompany}`)
+            .then(response => response.data)
+            .catch(error => {
+                console.error('Error fetching fencompanys:', error);
+                return null;
+            });
+    }
     const fetchDepartments = async (value) => {
         try {
             console.log('fetchDepartments')
@@ -486,6 +503,20 @@ const EmployeeEntryManagement = () => {
             console.error('Error fetching departments:', error);
         }
     };
+
+//同步部门
+    function fetchSyncDepartments(value) {
+        console.log('fetchDepartments');
+        axios.get(`http://127.0.0.1:8888/empDept/fencompany?id=${value ?? selectedFencompany}`)
+            .then(response => {
+                console.log('selectedFencompany:', selectedFencompany);
+                console.log('response.data:', response.data);
+                setDepartments(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching departments:', error);
+            });
+    }
 
     const fetchPositions = async () => {
         try {
@@ -623,7 +654,7 @@ const EmployeeEntryManagement = () => {
                         <Select onChange={(value) => {
                             setSelectedFencompany(value);
                             fetchDepartments(value);
-                        }} value={selectedFencompany} defaultValue={selectedFencompany}>
+                        }} value={selectedFencompany}>
                             {fencompanys.map((fencompany) => (
                                 <Option key={fencompany.deptId} value={fencompany.deptId}>
                                     {fencompany.deptName}
@@ -631,6 +662,7 @@ const EmployeeEntryManagement = () => {
                             ))}
                         </Select>
                     </Form.Item>
+
                     <Form.Item label="部门" name="deptId">
                         <Select defaultValue={departments[0]}>
                             {departments.map((department) => (
